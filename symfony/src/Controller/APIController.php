@@ -9,10 +9,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use FOS\RestBundle\View\View;
-use AppBundle\Entity\User;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+
 use App\Entity\Urls;
 use App\Repository\UrlsRepository;
-use Symfony\Component\Serializer\SerializerInterface;
+
+use App\Entity\User;
+use App\Repository\UserRepository;
 /**
  * @Route("/api", name="api")
  */
@@ -52,34 +56,191 @@ class APIController extends FOSRestController
   {
     
     $data = json_decode($request->getContent());
-    if($data->url):
-      if (!$data->shortUrl):
-        $data->shortUrl = $this->randomString(5);
+    $response = array();
+    $response['status'] = 'ok';
+    $response['errors'] = array();
+
+    if($data):
+      if(!isset($data->url)):
+        $response['status'] = 'error';
+        $response['errors']['url'] = 'Url is empty';
+      elseif(!$data->url):
+        $response['status'] = 'error';
+        $response['errors']['url'] = 'Url is empty';
       endif;
-      
-      while($repository->findByShortUrl($data->shortUrl)):
-        $data->shortUrl = $this->randomString(5);
-      endwhile;
 
-      $entityManager = $this->getDoctrine()->getManager();
+      if(!isset($data->shortUrl)):
+        $response['status'] = 'error';
+        $response['errors']['shortUrl'] = 'Short Url is not set';
+      elseif($data->shortUrl && $repository->findByShortUrl($data->shortUrl)):
+        $response['status'] = 'error';
+        $response['errors']['shortUrl'] = 'Short Url is already used';
+      endif;
+      if( $response['status'] == 'ok'):
+        if (!$data->shortUrl):
+          $data->shortUrl = $this->randomString(5);
+        endif;
+        while($repository->findByShortUrl($data->shortUrl)):
+          $data->shortUrl = $this->randomString(5);
+        endwhile;
 
-      $url = new Urls();
-      $url->setUrl($data->url);
-      $url->setShortUrl($data->shortUrl);
-      $url->setUserId(1);
-      $url->setUsageCount(0);
-      $url->setCreationDate(date_create(date('m/d/Y h:i:s a', time())));
-      
-      $entityManager->persist($url);
-      $entityManager->flush();
-      
-      $response = $this->serializer->serialize($url, 'json');
-    else:
-      $response = 'error';
-    endif;
+        $url = new Urls();
+        $url->setUrl($data->url);
+        $url->setShortUrl($data->shortUrl);
+
+        if(isset($request->headers->all()['authentication-token'])):
+          if(isset($request->headers->all()['authentication-token'][0])):
+            $key = $request->headers->all()['authentication-token'][0];
+            $user = $this->getDoctrine()->getRepository(User::class)->findByApiKey($key);
+          endif;
+        endif;
+        if(isset($user)) $url->setUserId($user->getId());
+        else $url->setUserId(-1);
+        $url->setUsageCount(0);
+        $url->setCreationDate(date_create(date('m/d/Y h:i:s a', time())));
         
-    return new JsonResponse($response, 200, [], true);;
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($url);
+        $entityManager->flush();
+        
+        $response['url'] = $url;
+      endif;
+    else:
+      $response['status'] = 'error';
+      $response['errors']['data'] = 'Empty Request';
+    endif;
+    $responseJSON = $this->serializer->serialize($response, 'json');
+    return new JsonResponse($responseJSON, 200, [], true);
   }
+
+
+    /**
+  * @Rest\Post("/sign_up")
+  */
+  public function createUser(Request $request, UserRepository $repository, UserPasswordEncoderInterface $passwordEncoder)
+  {
+    $data = json_decode($request->getContent());
+    
+    $response = array();
+    $response['status'] = 'ok';
+    $response['errors'] = array();
+        // dump($this->getDoctrine()->getRepository(User::class)->findAll());
+    if($data):
+      if(isset($data->email)):
+        if(filter_var($data->email, FILTER_VALIDATE_EMAIL)):
+          if($repository->findByEmail($data->email)):
+            $response['status'] = 'error';
+            $response['errors']['email'] = 'Email is used';
+          endif;
+        else:
+          $response['status'] = 'error';
+          $response['errors']['email'] = 'Email is not valid';
+        endif;
+      else:
+        $response['status'] = 'error';
+        $response['errors']['email'] = 'Empty Email';
+      endif;
+
+      if(!isset($data->username)):
+        $response['status'] = 'error';
+        $response['errors']['username'] = 'Empty Username';
+      elseif(!$data->username):
+        $response['status'] = 'error';
+        $response['errors']['username'] = 'Empty Username';
+      endif;
+
+      if(!isset($data->password)):
+        $response['status'] = 'error';
+        $response['errors']['password'] = 'Empty Password';
+      elseif(!$data->password):
+        $response['status'] = 'error';
+        $response['errors']['password'] = 'Empty Password';
+      endif;
+
+      if($response['status'] == 'ok'):
+        $user = new User();
+        $user->setUsername($data->username);
+        $user->setPassword($data->password);
+        $user->setEmail($data->email);
+        $user->setRoles(array('user'));
+        $user->setPassword(
+          $passwordEncoder->encodePassword(
+            $user,
+            $data->password
+          )
+        );
+        $user->setApiKey(
+          $passwordEncoder->encodePassword(
+            $user,
+            $data->email
+          )
+        );
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $response['userKey'] = $user->getApiKey();
+      endif;
+
+    else:
+      $response['status'] = 'error';
+      $response['errors']['data'] = 'Empty Request';
+    endif;
+
+      $responseJSON = $this->serializer->serialize($response, 'json');
+    return new JsonResponse($responseJSON, 200, [], true);;
+  }
+
+
+    /**
+  * @Rest\Post("/login")
+  */
+  public function login(Request $request, UserRepository $repository, UserPasswordEncoderInterface $passwordEncoder)
+  {
+    $data = json_decode($request->getContent());
+    
+    $response = array();
+    $response['status'] = 'ok';
+    $response['errors'] = array();
+    if($data):
+      if(isset($data->email)):
+        if(!filter_var($data->email, FILTER_VALIDATE_EMAIL)):
+          $response['status'] = 'error';
+          $response['errors']['email'] = 'Email is not valid';
+        endif;
+      else:
+        $response['status'] = 'error';
+        $response['errors']['email'] = 'Empty Email';
+      endif;
+
+      if(!isset($data->password)):
+        $response['status'] = 'error';
+        $response['errors']['password'] = 'Empty Password';
+      elseif(!$data->password):
+        $response['status'] = 'error';
+        $response['errors']['password'] = 'Empty Password';
+      endif;
+
+      if($response['status'] == 'ok'):
+        if(!$user = $repository->findByEmail($data->email)):
+          $response['status'] = 'error';
+          $response['errors']['email'] = 'Email is not registered';
+        elseif($passwordEncoder->isPasswordValid($user,$data->password)):
+          $response['userKey'] = $user->getApiKey();
+        else:
+          $response['status'] = 'error';
+          $response['errors']['password'] = 'Not valid password';
+        endif;
+      endif;
+    else:
+      $response['status'] = 'error';
+      $response['errors']['data'] = 'Empty Request';
+    endif;
+
+    $responseJSON = $this->serializer->serialize($response, 'json');
+    return new JsonResponse($responseJSON, 200, [], true);;
+  }
+
   function randomString($length)
   {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
