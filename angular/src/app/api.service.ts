@@ -32,13 +32,31 @@ export class ApiService {
     );
   }
 
+  loginUser(userInfo): Observable<any> {
+    return this.http.post(endpoint + 'login', {
+      email: userInfo.email,
+      password: userInfo.password
+    }, httpOptions).pipe(
+      catchError(this.handleError<any>('login '))
+    );
+  }
+
+  registerUser(userInfo): Observable<any> {
+    console.log(userInfo);
+    return this.http.post(endpoint + 'sign_up', {
+      email: userInfo.email,
+      password: userInfo.password,
+      username: userInfo.userName,
+    }, httpOptions).pipe(
+      catchError(this.handleError<any>('sign_up '))
+    );
+  }
+
   createUrl(url, shortUrl = ''): Observable<any> {
-    return this.http.post(endpoint + 'create_url', 
-    {
-      url:url,
-      shortUrl:shortUrl  
-    }
-    , httpOptions).pipe(
+    return this.http.post(endpoint + 'create_url', {
+      url: url,
+      shortUrl: shortUrl
+    }, httpOptions).pipe(
       catchError(this.handleError<any>('create_url'))
     );
   }

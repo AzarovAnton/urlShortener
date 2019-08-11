@@ -1,4 +1,11 @@
-<header class="container">
-
+<header>
+    <div class="navbar">
+        <div class="container d-flex justify-content-between">
+            <a [routerLink]="['/']" class="navbar-brand d-flex align-items-center">
+                <img src="../assets/img/logo.svg" alt="">
+            </a>
+            <a [routerLink]="['/registration']">Sign In / Sign Up</a>
+        </div>
+    </div>
 </header>
 <router-outlet></router-outlet>
