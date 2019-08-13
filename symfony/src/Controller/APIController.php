@@ -160,7 +160,6 @@ class APIController extends FOSRestController
       if($response['status'] == 'ok'):
         $user = new User();
         $user->setUsername($data->username);
-        $user->setPassword($data->password);
         $user->setEmail($data->email);
         $user->setRoles(array('user'));
         $user->setPassword(
@@ -239,6 +238,34 @@ class APIController extends FOSRestController
 
     $responseJSON = $this->serializer->serialize($response, 'json');
     return new JsonResponse($responseJSON, 200, [], true);;
+  }
+
+  /**
+   * @Rest\Post("/user")
+   */
+  public function getUserInfo(Request $request, UserRepository $repository)
+  {
+
+    $data = json_decode($request->getContent());
+    if($data->userKey):
+      $result = $repository->findByApiKey($data->userKey);
+      if($result) :
+        $response['status'] = 'ok';
+        $response['user']['username'] = $result->getUsername();
+        $response['user']['email'] = $result->getEmail();
+        $response['user']['id'] = $result->getId();
+      else:
+        $response['status'] = 'error';
+      endif;
+    else:
+      $response['status'] = 'ok';
+      $response['user']['username'] = '';
+      $response['user']['email'] = '';
+      $response['user']['id'] = '';
+    endif;
+    $resultJSON = $this->serializer->serialize($response, 'json');
+        
+    return new JsonResponse($resultJSON, 200, [], true);
   }
 
   function randomString($length)

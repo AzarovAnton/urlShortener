@@ -12,7 +12,7 @@ export class LocalStorageService {
   public setValue(field: string, value: string): void {
     this.storage.set(field, value);
   }
-  public getValue(field: string): void {
+  public getValue(field: string): any {
     return this.storage.get(field);
   }
 }

@@ -52,6 +52,14 @@ export class ApiService {
     );
   }
 
+  getUserInfo(userKey): Observable<any> {
+    return this.http.post(endpoint + 'user', {
+      userKey
+    }, httpOptions).pipe(
+      catchError(this.handleError<any>('user'))
+    );
+  }
+
   createUrl(url, shortUrl = ''): Observable<any> {
     return this.http.post(endpoint + 'create_url', {
       url: url,

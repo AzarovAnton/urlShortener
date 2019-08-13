@@ -17,14 +17,17 @@ label{
         color: red;
     }
 }
+header span,
 a{
     color: #554E4E;
     transition: all .2s;
+    cursor: pointer;
     &:hover{
         color: #000;
         text-decoration: none;
     }
 }
+
 input.input{
     border: 2px solid #DDDDDD;
     box-sizing: border-box;
@@ -74,4 +77,9 @@ input.input{
     line-height: 16px;
     text-transform: uppercase;
     color: #ddd;
+}
+
+.loading{
+    pointer-events: none;
+    opacity: 0.5; 
 }

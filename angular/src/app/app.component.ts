@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
+import { ApiService } from './api.service';
 import { LocalStorageService } from './local-storage.service';
 
 @Component({
@@ -7,12 +9,40 @@ import { LocalStorageService } from './local-storage.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  constructor(public localStorageService: LocalStorageService) {}
-  title = 'angular';
-  ngOnInit(): void
-  {
+
+  constructor(public api: ApiService, public localStorageService: LocalStorageService, public router: Router) { }
+
+  userName = '';
+  email = '';
+  loading = true;
+
+  ngOnInit(): void {
     const ne = 'userKey';
-    // this.localStorageService.setValue(ne, ne);
-    console.log(this.localStorageService.getValue(ne));
+    if (this.localStorageService.getValue(ne)) {
+      this.getUserInfo();
+    }
+    this.router.events.subscribe((val: any) => {
+      if (val['routerEvent']) { this.getUserInfo(); }
+    });
+  }
+  getUserInfo(): void {
+
+    this.api.getUserInfo(this.localStorageService.getValue('userKey')).subscribe((data) => {
+      if (data.status === 'ok') {
+        this.localStorageService.setValue('userId', data.user.userId);
+        this.userName = data.user.username;
+        this.email = data.user.email;
+        this.loading = false;
+      } else {
+        this.logout();
+        this.loading = false;
+      }
+    });
+  }
+  logout() {
+    this.localStorageService.setValue('userId', '');
+    this.localStorageService.setValue('userKey', '');
+    this.userName = '';
+    this.email = '';
   }
 }

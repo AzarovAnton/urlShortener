@@ -4,7 +4,11 @@
             <a [routerLink]="['/']" class="navbar-brand d-flex align-items-center">
                 <img src="../assets/img/logo.svg" alt="">
             </a>
-            <a [routerLink]="['/registration']">Sign In / Sign Up</a>
+            <a [routerLink]="['/registration']" *ngIf="!userName" [ngClass]="{'loading':loading}">Sign In / Sign Up</a>
+            <div  *ngIf="userName"  [ngClass]="{'loading':loading}">
+                <span>{{userName}}</span>  / 
+                <span (click)="logout()">Logout</span>   
+            </div>
         </div>
     </div>
 </header>

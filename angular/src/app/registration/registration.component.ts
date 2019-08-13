@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import  { Router } from '@angular/router';
 import { ApiService } from '../api.service';
 import { LocalStorageService } from '../local-storage.service';
 
@@ -29,10 +30,10 @@ export class RegistrationComponent implements OnInit {
   };
   private loginUserErrors = {
     email: '',
-    password: 'error',
+    password: '',
   };
 
-  constructor(public api: ApiService, public localStorageService: LocalStorageService) { }
+  constructor(public api: ApiService, public localStorageService: LocalStorageService, public router: Router) { }
 
   ngOnInit() {
   }
@@ -52,7 +53,7 @@ export class RegistrationComponent implements OnInit {
       errors = true;
       this.loginUserErrors.password = 'Empty password';
     }
-    if (this.loginUser.email) {
+    if (!this.loginUser.email) {
       this.loginUserErrors.email = 'Empty email';
       errors = true;
     }
@@ -60,6 +61,7 @@ export class RegistrationComponent implements OnInit {
       this.api.loginUser(this.loginUser).subscribe((data) => {
         if (data.status === 'ok') {
           this.localStorageService.setValue('userKey', data.userKey);
+          this.router.navigate(['']);
         } else {
           this.loginUserErrors = data.errors;
         }
@@ -86,18 +88,19 @@ export class RegistrationComponent implements OnInit {
       this.registerUserErrors.password2 = 'Passwords doesn\'t match';
       errors = true;
     }
-    if (this.registerUser.email) {
+    if (!this.registerUser.email) {
       this.registerUserErrors.email = 'Empty email';
       errors = true;
     }
-    if (this.registerUser.userName) {
-      this.registerUserErrors.email = 'Empty name';
+    if (!this.registerUser.userName) {
+      this.registerUserErrors.userName = 'Empty name';
       errors = true;
     }
     if (!errors) {
       this.api.registerUser(this.registerUser).subscribe((data) => {
         if (data.status === 'ok') {
           this.localStorageService.setValue('userKey', data.userKey);
+          this.router.navigate(['']);
         } else {
           this.registerUserErrors = data.errors;
         }
