@@ -88,10 +88,9 @@ class APIController extends FOSRestController
         $url->setUrl($data->url);
         $url->setShortUrl($data->shortUrl);
 
-        if(isset($request->headers->all()['authentication-token'])):
-          if(isset($request->headers->all()['authentication-token'][0])):
-            $key = $request->headers->all()['authentication-token'][0];
-            $user = $this->getDoctrine()->getRepository(User::class)->findByApiKey($key);
+        if(isset($data->token)):
+          if($data->token):
+            $user = $this->getDoctrine()->getRepository(User::class)->findByApiKey($data->token);
           endif;
         endif;
         if(isset($user)) $url->setUserId($user->getId());

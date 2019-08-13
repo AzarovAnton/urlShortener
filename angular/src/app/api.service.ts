@@ -60,11 +60,12 @@ export class ApiService {
     );
   }
 
-  createUrl(url, shortUrl = ''): Observable<any> {
+  createUrl(url, shortUrl = '', token): Observable<any> {
     return this.http.post(endpoint + 'create_url', {
+      token : token,
       url: url,
-      shortUrl: shortUrl
-    }, httpOptions).pipe(
+      shortUrl: shortUrl  
+    }, httpOptions ).pipe(
       catchError(this.handleError<any>('create_url'))
     );
   }
