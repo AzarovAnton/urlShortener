@@ -36,6 +36,9 @@ export class RegistrationComponent implements OnInit {
   constructor(public api: ApiService, public localStorageService: LocalStorageService, public router: Router) { }
 
   ngOnInit() {
+    if (this.localStorageService.getValue('userKey')) {
+      this.router.navigate(['']);
+    }
   }
 
   public changeCol(val: boolean) {

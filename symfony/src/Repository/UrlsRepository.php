@@ -32,6 +32,27 @@ class UrlsRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
         ;
     }
+
+    public function findByUserId($value)
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.user_id = :val')
+            ->setParameter('val', $value)
+            ->orderBy('u.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function findLastUrls($n)
+    {
+        return $this->createQueryBuilder('u')
+            ->orderBy('u.id', 'DESC')
+            ->setMaxResults($n)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
     
     public function removeByDate($age)
     {

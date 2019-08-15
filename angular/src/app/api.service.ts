@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
+import { catchError} from 'rxjs/operators';
+import { environment } from './environment/environment';
 
 
 
-const endpoint = 'http://localhost:8000/api/';
+const endpoint = environment.apiUrl + '/';
 const httpOptions = {
   headers: new HttpHeaders({
     'Content-Type': 'application/json'
@@ -25,6 +26,22 @@ export class ApiService {
       catchError(this.handleError<any>('urls'))
     );
   }
+
+  getNUrls(n): Observable<any> {
+    return this.http.get(endpoint + 'urls_N/' + n, httpOptions).pipe(
+      catchError(this.handleError<any>('urls_N'))
+    );
+  }
+
+
+  getUserUrls(userKey): Observable<any> {
+    return this.http.post(endpoint + 'user_urls', {
+      userKey
+    }, httpOptions).pipe(
+      catchError(this.handleError<any>('user_urls'))
+    );
+  }
+
 
   getUrl(shortUrl): Observable<any> {
     return this.http.get(endpoint + 'urls/' + shortUrl, httpOptions).pipe(
@@ -73,13 +90,10 @@ export class ApiService {
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: any): Observable<T> => {
 
-      // TODO: send the error to remote logging infrastructure
       console.error(error); // log to console instead
 
-      // TODO: better job of transforming error for user consumption
       console.log(`${operation} failed: ${error.message}`);
 
-      // Let the app keep running by returning an empty result.
       return of(result as T);
     };
   }

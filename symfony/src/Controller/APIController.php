@@ -39,6 +39,16 @@ class APIController extends FOSRestController
     return new JsonResponse($result, 200, [], true);
    }
    /**
+   * @Rest\Get("/urls_N/{count}")
+   */
+  public function getNUrlList($count, UrlsRepository $repository)
+  {
+   $list = $repository->findLastUrls($count);
+   $result = $this->serializer->serialize($list, 'json');
+       
+   return new JsonResponse($result, 200, [], true);
+  }
+   /**
    * @Rest\Get("/urls/{shortUrl}")
    */
   public function getUrl($shortUrl, UrlsRepository $repository)
@@ -68,7 +78,10 @@ class APIController extends FOSRestController
         $response['status'] = 'error';
         $response['errors']['url'] = 'Url is empty';
       endif;
-
+      if (!$this->url_exists($data->url)) {
+        $response['status'] = 'error';
+        $response['errors']['url'] = 'Incorrect Url';
+      }
       if(!isset($data->shortUrl)):
         $response['status'] = 'error';
         $response['errors']['shortUrl'] = 'Short Url is not set';
@@ -267,6 +280,35 @@ class APIController extends FOSRestController
     return new JsonResponse($resultJSON, 200, [], true);
   }
 
+  /**
+   * @Rest\Post("/user_urls")
+   */
+  public function getUserUrl(Request $request, UserRepository $repository, UrlsRepository $repositoryUrls)
+  {
+
+    $data = json_decode($request->getContent());
+    if($data->userKey):
+      $result = $repository->findByApiKey($data->userKey);
+      if($result) :
+        $response['status'] = 'ok';
+        $response['user']['username'] = $result->getUsername();
+        $response['user']['email'] = $result->getEmail();
+        $response['user']['id'] = $result->getId();
+        $response['user']['urls'] = $repositoryUrls->findByUserId($result->getId());
+      else:
+        $response['status'] = 'error';
+      endif;
+    else:
+      $response['status'] = 'ok';
+      $response['user']['username'] = '';
+      $response['user']['email'] = '';
+      $response['user']['id'] = '';
+    endif;
+    $resultJSON = $this->serializer->serialize($response, 'json');
+        
+    return new JsonResponse($resultJSON, 200, [], true);
+  }
+
   function randomString($length)
   {
     $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -275,5 +317,15 @@ class APIController extends FOSRestController
         $randstring .= $characters[rand(0, strlen($characters)-1)];
     }
     return $randstring;
+  }
+  function url_exists($url) {
+    $headers = @get_headers($url); 
+  
+    if($headers && strpos( $headers[0], '200')) { 
+      return true;
+    } 
+    else { 
+      return false; 
+    } 
   }
 }

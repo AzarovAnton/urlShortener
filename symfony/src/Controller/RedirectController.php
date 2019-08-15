@@ -19,6 +19,7 @@ class RedirectController extends AbstractController
     public function index($url, Request $request)
     {
         $result = $this->getDoctrine()->getRepository(Urls::class)->findByShortUrl($url);
+        var_dump($result);
         if($result){
             $entityManager = $this->getDoctrine()->getManager();
 
@@ -40,7 +41,7 @@ class RedirectController extends AbstractController
                 return $this->redirect('http://'.$url);
             endif;
         } else {
-            return $this->redirect('/');
+            // return $this->redirect('/');
         }
     }
 }

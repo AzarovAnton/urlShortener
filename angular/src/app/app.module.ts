@@ -9,12 +9,14 @@ import { HttpClientModule } from '@angular/common/http';
 import { HomeComponent } from './home/home.component';
 import { RegistrationComponent } from './registration/registration.component';
 import { StorageServiceModule } from 'ngx-webstorage-service';
+import { UserComponent } from './user/user.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     RegistrationComponent,
+    UserComponent,
   ],
   imports: [
     BrowserModule,

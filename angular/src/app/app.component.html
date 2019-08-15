@@ -6,7 +6,7 @@
             </a>
             <a [routerLink]="['/registration']" *ngIf="!userName" [ngClass]="{'loading':loading}">Sign In / Sign Up</a>
             <div  *ngIf="userName"  [ngClass]="{'loading':loading}">
-                <span>{{userName}}</span>  / 
+                <a [routerLink]="['/user']" >{{userName}}</a>  / 
                 <span (click)="logout()">Logout</span>   
             </div>
         </div>
