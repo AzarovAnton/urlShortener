@@ -15,8 +15,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use App\Entity\Urls;
 use App\Repository\UrlsRepository;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Entity\Users;
+use App\Repository\UsersRepository;
 /**
  * @Route("/api", name="api")
  */
@@ -103,7 +103,7 @@ class APIController extends FOSRestController
 
         if(isset($data->token)):
           if($data->token):
-            $user = $this->getDoctrine()->getRepository(User::class)->findByApiKey($data->token);
+            $user = $this->getDoctrine()->getRepository(Users::class)->findByApiKey($data->token);
           endif;
         endif;
         if(isset($user)) $url->setUserId($user->getId());
@@ -136,7 +136,6 @@ class APIController extends FOSRestController
     $response = array();
     $response['status'] = 'ok';
     $response['errors'] = array();
-        // dump($this->getDoctrine()->getRepository(User::class)->findAll());
     if($data):
       if(isset($data->email)):
         if(filter_var($data->email, FILTER_VALIDATE_EMAIL)):
@@ -170,7 +169,7 @@ class APIController extends FOSRestController
       endif;
 
       if($response['status'] == 'ok'):
-        $user = new User();
+        $user = new Users();
         $user->setUsername($data->username);
         $user->setEmail($data->email);
         $user->setRoles(array('user'));
@@ -270,10 +269,7 @@ class APIController extends FOSRestController
         $response['status'] = 'error';
       endif;
     else:
-      $response['status'] = 'ok';
-      $response['user']['username'] = '';
-      $response['user']['email'] = '';
-      $response['user']['id'] = '';
+      $response['status'] = 'error';
     endif;
     $resultJSON = $this->serializer->serialize($response, 'json');
         
