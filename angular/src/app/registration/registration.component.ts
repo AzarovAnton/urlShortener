@@ -10,25 +10,25 @@ import { LocalStorageService } from '../local-storage.service';
 })
 export class RegistrationComponent implements OnInit {
 
-  private col = true;
+  col = true;
 
-  private registerUser = {
+  registerUser = {
     email: '',
     password: '',
     password2: '',
     userName: '',
   };
-  private registerUserErrors = {
+  registerUserErrors = {
     email: '',
     password: '',
     password2: '',
     userName: '',
   };
-  private loginUser = {
+  loginUser = {
     email: '',
     password: '',
   };
-  private loginUserErrors = {
+  loginUserErrors = {
     email: '',
     password: '',
   };

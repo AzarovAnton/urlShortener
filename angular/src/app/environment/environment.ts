@@ -1,5 +1,5 @@
 export const environment = {
-    apiUrl: 'http://localhost:8000/api',
-    hostUrl: 'http://localhost:8000',
+    apiUrl: 'https://url-shortener-test2019.herokuapp.com/api',
+    hostUrl: 'https://url-shortener-test2019.herokuapp.com',
     debugMode: false
 };

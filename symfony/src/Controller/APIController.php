@@ -129,7 +129,7 @@ class APIController extends FOSRestController
     /**
   * @Rest\Post("/sign_up")
   */
-  public function createUser(Request $request, UserRepository $repository, UserPasswordEncoderInterface $passwordEncoder)
+  public function createUser(Request $request, UsersRepository $repository, UserPasswordEncoderInterface $passwordEncoder)
   {
     $data = json_decode($request->getContent());
     
@@ -205,7 +205,7 @@ class APIController extends FOSRestController
     /**
   * @Rest\Post("/login")
   */
-  public function login(Request $request, UserRepository $repository, UserPasswordEncoderInterface $passwordEncoder)
+  public function login(Request $request, UsersRepository $repository, UserPasswordEncoderInterface $passwordEncoder)
   {
     $data = json_decode($request->getContent());
     
@@ -254,7 +254,7 @@ class APIController extends FOSRestController
   /**
    * @Rest\Post("/user")
    */
-  public function getUserInfo(Request $request, UserRepository $repository)
+  public function getUserInfo(Request $request, UsersRepository $repository)
   {
 
     $data = json_decode($request->getContent());
@@ -279,7 +279,7 @@ class APIController extends FOSRestController
   /**
    * @Rest\Post("/user_urls")
    */
-  public function getUserUrl(Request $request, UserRepository $repository, UrlsRepository $repositoryUrls)
+  public function getUserUrl(Request $request, UsersRepository $repository, UrlsRepository $repositoryUrls)
   {
 
     $data = json_decode($request->getContent());
