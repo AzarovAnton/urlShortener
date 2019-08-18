@@ -26,12 +26,14 @@ export class UserComponent implements OnInit {
 
   getUrls() {
     this.urls = [];
-    this.api.getNUrls(10).subscribe((data) => {
-      this.urls = data.map((item) => {
-        item.shortUrl = environment.hostUrl + '/' + item.shortUrl;
-        item.creationDate = item.creationDate.substr(0, 10);
-        return item;
-      });
+    this.api.getUserUrls(this.localStorageService.getValue('userKey')).subscribe((data) => {
+      if (data.status === 'ok') {
+        this.urls = data.urls.map((item) => {
+          item.shortUrl = environment.hostUrl + '/' + item.shortUrl;
+          item.creationDate = item.creationDate.substr(0, 10);
+          return item;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
+        });
+      }
     });
   }
 

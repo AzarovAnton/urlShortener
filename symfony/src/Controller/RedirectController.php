@@ -40,7 +40,7 @@ class RedirectController extends AbstractController
                 return $this->redirect('http://'.$url);
             endif;
         } else {
-            // return $this->redirect('/');
+            return $this->redirect('/');
         }
     }
 }

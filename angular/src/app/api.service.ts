@@ -9,7 +9,7 @@ import { environment } from './environment/environment';
 const endpoint = environment.apiUrl + '/';
 const httpOptions = {
   headers: new HttpHeaders({
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
   })
 };
 

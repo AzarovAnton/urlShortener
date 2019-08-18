@@ -11,7 +11,7 @@
         <div class="col-lg-8 offset-lg-1  col-md-8 offset-md-0">
             <label>
                 <div class="d-flex align-items-center">
-                    <div>{{environment}}/</div>
+                    <div class="d-none d-md-block">{{environment}}/</div>
                     <input type="text" placeholder="Place short URL here" class="mb-4 mt-4 form-control input"
                         [(ngModel)]=shortUrl>
                 </div>
@@ -23,19 +23,18 @@
                 <div>Create URL</div><img src="../../assets/img/arrow.svg" alt="">
             </div>
         </div>
-
         <div class="col-12">
-            <div class="row border-bottom">
-                <div class="col-4 title p-2">Old Link</div>
-                <div class="col-4 title p-2">Short Link</div>
-                <div class="col-2 title p-2 text-center">Date</div>
-                <div class="col-2 title p-2 text-center">Usage Count</div>
+            <div class="row border-bottom  d-none d-md-flex">
+                <div class="col-12 col-md-4 title p-2 ">Old Link</div>
+                <div class="col-12 col-md-4 title p-2 ">Short Link</div>
+                <div class="col-12 col-md-2 title p-2 text-center ">Date</div>
+                <div class="col-12 col-md-2 title p-2 text-center ">Usage Count</div>
             </div>
             <div *ngFor="let item of urls" class="row border-bottom">
-                <div class="col-4 p-2"><a [href]="item.url">{{item.url}}</a></div>
-                <div class="col-4 p-2"><a [href]="item.shortUrl">{{item.shortUrl}}</a></div>
-                <div class="col-2 p-2 text-center">{{item.creationDate}}</div>
-                <div class="col-2 p-2 text-center">{{item.usageCount}}</div>
+                <div class="col-12 col-md-4 p-2 t-cell"><span class="d-inline d-md-none title">Old Link: </span><a [href]="item.url">{{item.url}}</a></div>
+                <div class="col-12 col-md-4 p-2 t-cell"><span class="d-inline d-md-none title">Short Link: </span><a [href]="item.shortUrl">{{item.shortUrl}}</a></div>
+                <div class="col-12 col-md-2 p-2 text-md-center"><span class="d-inline d-md-none title">Date: </span>{{item.creationDate}}</div>
+                <div class="col-12 col-md-2 p-2 text-md-center"><span class="d-inline d-md-none title">Usage Count: </span>{{item.usageCount}}</div>
             </div>
         </div>
     </div>
